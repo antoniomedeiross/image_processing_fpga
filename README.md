@@ -1,1 +1,1 @@
-# zoom_with_fpga
+# Image processing with FPGA (de1-soc)
