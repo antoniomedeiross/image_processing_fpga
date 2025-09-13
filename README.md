@@ -1,1 +1,1 @@
-# Image processing with FPGA (de1-soc)
+# Digital Zoom: Image Resizing with FPGA in Verilog (de1-soc)
