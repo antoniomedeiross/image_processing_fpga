@@ -23,10 +23,10 @@ Este repositório reúne os códigos-fonte, scripts e documentação completa do
 ## Funcionalidades
 
 - Redimensionamento de imagens em escala de cinza (8 bits por pixel).  
-- Suporte a **zoom in (2x)** com dois algoritmos:  
+- Suporte a **zoom in (2x e 4x)** com dois algoritmos:  
   - Vizinho Mais Próximo (Nearest Neighbor)  
   - Replicação de Pixel (Pixel Replication)  
-- Suporte a **zoom out (1/2x)** com dois algoritmos:  
+- Suporte a **zoom out (1/2x e 1/4x)** com dois algoritmos:  
   - Decimação (Downsampling)  
   - Média de Blocos (Block Averaging)  
 - Controle do modo de operação via **chaves e botões da placa DE1-SoC**.  
