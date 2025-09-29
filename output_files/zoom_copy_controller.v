@@ -1,0 +1,219 @@
+module zoom_copy_controller (
+    input wire clk,
+    input wire reset,
+    input wire [1:0] zoom_enable, // 00=normal, 01=zoom out 0.5x, 10=zoom in 2x
+    // tipy_alg [3:0] 
+	 
+    // Interface com a ROM (síncrona)
+    input wire [7:0] rom_data_in,
+    output reg [14:0] rom_addr_out,
+    
+    // Interface com a RAM (framebuffer 640x480)
+    output reg [7:0] ram_data_out,
+    output reg [18:0] ram_addr_out,
+    output reg ram_wren_out,
+    
+    // Status
+    output reg done
+);
+	
+	/*
+		0000 -> sem nada
+		0001 -> replicacao 2x
+		0010 -> vizinho in 2x
+		0011 -> vizinho out 0.5x
+		0100 -> media 0.5x
+	*/
+
+    
+    // Parâmetros da imagem original
+    localparam ROM_IMG_W = 160;
+    localparam ROM_IMG_H = 120;
+    
+    // Parâmetros da RAM
+    localparam RAM_WIDTH = 640;
+    localparam RAM_HEIGHT = 480;
+    localparam RAM_SIZE = RAM_WIDTH * RAM_HEIGHT;
+    
+    // Offsets para centralizar as imagens
+    localparam NORMAL_OFFSET_X = 240;   // (640-160)/2
+    localparam NORMAL_OFFSET_Y = 180;   // (480-120)/2
+    localparam ZOOM_OUT_OFFSET_X = 280; // (640-80)/2
+    localparam ZOOM_OUT_OFFSET_Y = 210; // (480-60)/2
+    
+    // Estados da FSM (simplificados)
+    localparam S_IDLE              = 4'd0;
+    localparam S_CLEAR_FRAME       = 4'd1;
+    localparam S_PROCESS_PIXEL     = 4'd2;
+    localparam S_FETCH_PIXEL_READ  = 4'd3; // Estado único para ler pixel no modo normal
+    localparam S_WRITE_RAM         = 4'd4;
+    localparam S_DONE              = 4'd5;
+    // Estados pipelined para ler o bloco 2x2 no zoom out
+    localparam S_FETCH_BLOCK_00    = 4'd6;
+    localparam S_FETCH_BLOCK_01    = 4'd7;
+    localparam S_FETCH_BLOCK_10    = 4'd8;
+    localparam S_FETCH_BLOCK_11    = 4'd9;
+    localparam S_CALC_AVERAGE      = 4'd10;
+    
+    reg [3:0] state;
+    reg [18:0] ram_counter;
+    
+    // Coordenadas atuais na RAM
+    reg [9:0] current_x;
+    reg [8:0] current_y;
+    
+    // Coordenadas de origem na ROM
+    reg [7:0] src_x_base;
+    reg [6:0] src_y_base;
+    
+    // Registradores para armazenar os 4 pixels do bloco 2x2
+    reg [7:0] pixel_00, pixel_01, pixel_10, pixel_11;
+    
+    // Calcula coordenadas atuais da RAM
+    always @(*) begin
+        current_x = ram_counter % RAM_WIDTH;
+        current_y = ram_counter / RAM_WIDTH;
+    end
+    
+    // FSM Principal
+	 
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            state <= S_IDLE;
+            ram_counter <= 0;
+            done <= 1'b0;
+            ram_wren_out <= 1'b0;
+            rom_addr_out <= 0;
+            // Zera outros registradores se necessário
+        end else begin
+		  
+		  
+		  //===============================================================
+		  // MEDIA DE BLOCOS
+		  //===============================================================
+			
+            case (state)
+                S_IDLE: begin
+                    ram_counter <= 0;
+                    done <= 1'b0;
+                    ram_wren_out <= 1'b0;
+                    state <= S_CLEAR_FRAME;
+                end
+                
+                S_CLEAR_FRAME: begin
+                    ram_wren_out <= 1'b1;
+                    ram_data_out <= 8'h00; // Preto
+                    ram_addr_out <= ram_counter;
+                    
+                    if (ram_counter < RAM_SIZE - 1) begin
+                        ram_counter <= ram_counter + 1;
+                    end else begin
+                        ram_counter <= 0;
+                        ram_wren_out <= 1'b0;
+                        state <= S_PROCESS_PIXEL;
+                    end
+                end
+                
+                S_PROCESS_PIXEL: begin
+                    if (ram_counter >= RAM_SIZE) begin
+                        state <= S_DONE;
+                    end else begin
+                        ram_wren_out <= 1'b0;
+                        
+                        // Decide o que fazer com base no modo de zoom e na posição atual
+                        if (zoom_enable == 2'b00 && // MODO NORMAL
+                            current_y >= NORMAL_OFFSET_Y && current_y < NORMAL_OFFSET_Y + ROM_IMG_H &&
+                            current_x >= NORMAL_OFFSET_X && current_x < NORMAL_OFFSET_X + ROM_IMG_W)
+                        begin
+                            src_x_base <= current_x - NORMAL_OFFSET_X;
+                            src_y_base <= current_y - NORMAL_OFFSET_Y;
+                            state <= S_FETCH_PIXEL_READ;
+                        end
+                        else if (zoom_enable == 2'b01 && // MODO ZOOM OUT
+                                 current_y >= ZOOM_OUT_OFFSET_Y && current_y < ZOOM_OUT_OFFSET_Y + (ROM_IMG_H / 2) &&
+                                 current_x >= ZOOM_OUT_OFFSET_X && current_x < ZOOM_OUT_OFFSET_X + (ROM_IMG_W / 2))
+                        begin
+                            src_x_base <= (current_x - ZOOM_OUT_OFFSET_X) * 2;
+                            src_y_base <= (current_y - ZOOM_OUT_OFFSET_Y) * 2;
+                            state <= S_FETCH_BLOCK_00;
+                        end
+                        else begin
+                            // Fora da área de desenho, apenas avança
+                            ram_counter <= ram_counter + 1;
+                            state <= S_PROCESS_PIXEL;
+                        end
+                    end
+                end
+
+                // --- ESTADOS PARA MODO NORMAL (1:1) ---
+                S_FETCH_PIXEL_READ: begin
+                    // Define o endereço e espera 1 ciclo para a ROM responder
+                    rom_addr_out <= src_y_base * ROM_IMG_W + src_x_base;
+                    state <= S_WRITE_RAM; // O dado estará pronto na entrada de S_WRITE_RAM
+                end
+
+                // --- ESTADOS PIPELINED PARA ZOOM OUT (0.5x) ---
+                S_FETCH_BLOCK_00: begin
+                    // 1. Pede o primeiro pixel (0,0)
+                    rom_addr_out <= src_y_base * ROM_IMG_W + src_x_base;
+                    state <= S_FETCH_BLOCK_01;
+                end
+                
+                S_FETCH_BLOCK_01: begin
+                    // 1. O dado de (0,0) está pronto -> Salva
+                    pixel_00 <= rom_data_in;
+                    // 2. Pede o segundo pixel (0,1)
+                    rom_addr_out <= src_y_base * ROM_IMG_W + (src_x_base + 1);
+                    state <= S_FETCH_BLOCK_10;
+                end
+
+                S_FETCH_BLOCK_10: begin
+                    // 1. O dado de (0,1) está pronto -> Salva
+                    pixel_01 <= rom_data_in;
+                    // 2. Pede o terceiro pixel (1,0)
+                    rom_addr_out <= (src_y_base + 1) * ROM_IMG_W + src_x_base;
+                    state <= S_FETCH_BLOCK_11;
+                end
+
+                S_FETCH_BLOCK_11: begin
+                    // 1. O dado de (1,0) está pronto -> Salva
+                    pixel_10 <= rom_data_in;
+                    // 2. Pede o quarto pixel (1,1)
+                    rom_addr_out <= (src_y_base + 1) * ROM_IMG_W + (src_x_base + 1);
+                    state <= S_CALC_AVERAGE;
+                end
+
+                S_CALC_AVERAGE: begin
+                    // 1. O dado de (1,1) está pronto -> Salva
+                    pixel_11 <= rom_data_in;
+                    // Não precisa mudar o estado, o cálculo é combinacional e o resultado já vai para S_WRITE_RAM
+                    state <= S_WRITE_RAM;
+                end
+
+                // --- ESTADO COMUM DE ESCRITA ---
+                S_WRITE_RAM: begin
+                    ram_wren_out <= 1'b1;
+                    ram_addr_out <= ram_counter;
+
+                    if (zoom_enable == 2'b01) begin // Zoom Out
+                        // Média dos 4 pixels com arredondamento
+                        ram_data_out <= ({2'b0, pixel_00} + {2'b0, pixel_01} + {2'b0, pixel_10} + {2'b0, pixel_11} + 2'd2) >> 2;
+                    end else begin // Modo Normal
+                        ram_data_out <= rom_data_in; // Lê o dado que ficou pronto
+                    end
+                    
+                    ram_counter <= ram_counter + 1;
+                    state <= S_PROCESS_PIXEL;
+                end
+                
+                S_DONE: begin
+                    done <= 1'b1;
+                    ram_wren_out <= 1'b0;
+                end
+                
+                default: state <= S_IDLE;
+            endcase
+        end
+    end
+    
+endmodule

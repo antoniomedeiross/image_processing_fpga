@@ -1,0 +1,55 @@
+module main (
+    // Entradas da placa FPGA
+    input wire clk_25m,
+    input wire reset_n,
+    input wire [7:0] SW,
+
+    // Saídas para o conector VGA
+    output wire [7:0] VGA_R,
+    output wire [7:0] VGA_G,
+    output wire [7:0] VGA_B,
+    output wire VGA_HS,
+    output wire VGA_VS,
+    output wire VGA_SYNC_N,
+    output wire VGA_CLK,
+    output wire VGA_BLANK_N
+);
+
+    wire [7:0] color_data;
+    wire [9:0] next_x, next_y;
+    wire hsync_out, vsync_out;
+    wire [7:0] red_out, green_out, blue_out;
+    wire sync_out, blank_out;
+    wire clk_out;
+
+    // Conecta as chaves à entrada de cor
+    assign color_data = SW;
+
+    // Instancia o módulo driver VGA
+    vga_driver vga_inst (
+        .clock(clk_25m),
+        .reset(!reset_n), // Assumindo que reset_n é ativo baixo
+        .color_in(color_data),
+        .next_x(next_x),
+        .next_y(next_y),
+        .hsync(hsync_out),
+        .vsync(vsync_out),
+        .red(red_out),
+        .green(green_out),
+        .blue(blue_out),
+        .sync(sync_out),
+        .clk(clk_out),
+        .blank(blank_out)
+    );
+
+    // Atribui as saídas do driver aos pinos da placa
+    assign VGA_R = red_out;
+    assign VGA_G = green_out;
+    assign VGA_B = blue_out;
+    assign VGA_HS = hsync_out;
+    assign VGA_VS = vsync_out;
+    assign VGA_SYNC_N = ~sync_out;
+    assign VGA_CLK = clk_out;
+    assign VGA_BLANK_N = ~blank_out;
+
+endmodule

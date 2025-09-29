@@ -1,0 +1,128 @@
+module zoom_copy_controller (
+    input wire clk,
+    input wire reset,
+    input wire zoom_enable,
+
+    // Interface com a ROM
+    input wire [7:0] rom_data_in,
+    output reg [14:0] rom_addr_out,
+
+    // Interface com a RAM
+    output reg [7:0] ram_data_out,
+    output reg [18:0] ram_addr_out,
+    output reg ram_wren_out,
+
+    // Status
+    output reg done
+);
+
+    // Parâmetros da imagem original e da imagem com zoom
+    localparam ROM_IMG_W = 160;
+    localparam ROM_IMG_H = 120;
+    localparam ZOOMED_IMG_W = 320; // 160 * 2
+    localparam ZOOMED_IMG_H = 240; // 120 * 2
+    
+    // Parâmetros para centralizar a imagem 320x240 no framebuffer 640x480
+    localparam OFFSET_X = (640 - ZOOMED_IMG_W) / 2; // (640 - 320) / 2 = 160
+    localparam OFFSET_Y = (480 - ZOOMED_IMG_H) / 2; // (480 - 240) / 2 = 120
+
+    // Contadores para varrer a imagem da ROM
+    reg [7:0] rom_x;
+    reg [6:0] rom_y;
+    
+    // FSM para controlar o processo
+    localparam S_IDLE = 2'b00;
+    localparam S_COPY = 2'b01;
+    localparam S_DONE = 2'b10;
+    reg [1:0] state, next_state;
+
+    // Lógica interna para o zoom
+    reg [7:0] pixel_buffer;
+    reg       repeat_pixel_flag; // Para zoom horizontal
+    reg       repeat_line_flag;  // Para zoom vertical
+
+    // Lógica de atualização do estado síncrono
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            state <= S_IDLE;
+        end else begin
+            state <= next_state;
+        end
+    end
+
+    // Lógica de controle e FSM combinacional
+    always @(*) begin
+        // Valores padrão
+        next_state = state;
+        rom_addr_out = rom_y * ROM_IMG_W + rom_x;
+        ram_data_out = pixel_buffer;
+        ram_wren_out = 1'b0;
+        ram_addr_out = 0;
+        done = 1'b0;
+
+        case(state)
+            S_IDLE: begin
+                if (~reset) begin
+                    next_state = S_COPY;
+                end
+            end
+            
+            S_COPY: begin
+                // O dado da ROM (rom_data_in) está disponível neste ciclo
+                pixel_buffer = rom_data_in;
+
+                if (!repeat_pixel_flag) begin // Primeira vez que vemos este pixel
+                    ram_wren_out = 1'b1;
+                    // Escreve o primeiro pixel
+                    ram_addr_out = ((rom_y * 2) + repeat_line_flag + OFFSET_Y) * 640 + ((rom_x * 2) + 0 + OFFSET_X);
+                end else begin // Segunda vez, repetindo o pixel
+                    ram_wren_out = 1'b1;
+                    // Escreve o pixel repetido
+                    ram_addr_out = ((rom_y * 2) + repeat_line_flag + OFFSET_Y) * 640 + ((rom_x * 2) + 1 + OFFSET_X);
+                end
+                
+                // Lógica de avanço dos contadores
+                if (rom_x == ROM_IMG_W - 1 && repeat_pixel_flag) begin // Fim da linha
+                    if (rom_y == ROM_IMG_H - 1 && repeat_line_flag) begin // Fim da imagem
+                        next_state = S_DONE;
+                    end
+                end
+            end
+            
+            S_DONE: begin
+                done = 1'b1;
+                ram_wren_out = 1'b0;
+                next_state = S_DONE;
+            end
+        endcase
+    end
+    
+    // Lógica síncrona para os contadores e flags
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            rom_x <= 0;
+            rom_y <= 0;
+            repeat_pixel_flag <= 0;
+            repeat_line_flag  <= 0;
+        end else if (state == S_COPY) begin
+            
+            if (repeat_pixel_flag) begin // Estávamos repetindo, agora avançamos para o próximo pixel da ROM
+                repeat_pixel_flag <= 0;
+                if (rom_x < ROM_IMG_W - 1) begin
+                    rom_x <= rom_x + 1;
+                end else begin // Chegamos ao fim da linha horizontal
+                    rom_x <= 0; // Reinicia X
+                    if (repeat_line_flag) begin // Já repetimos a linha, avançamos para a próxima
+                        rom_y <= rom_y + 1;
+                        repeat_line_flag <= 0;
+                    end else begin // Primeira vez na linha, vamos repeti-la
+                        repeat_line_flag <= 1;
+                    end
+                end
+            end else begin // Estávamos lendo, agora vamos repetir o pixel
+                repeat_pixel_flag <= 1;
+            end
+        end
+    end
+
+endmodule

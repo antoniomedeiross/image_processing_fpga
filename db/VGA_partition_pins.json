@@ -1,0 +1,169 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "hsync",
+					"strict" : false
+				},
+				{
+					"name" : "vsync",
+					"strict" : false
+				},
+				{
+					"name" : "red[0]",
+					"strict" : false
+				},
+				{
+					"name" : "red[1]",
+					"strict" : false
+				},
+				{
+					"name" : "red[2]",
+					"strict" : false
+				},
+				{
+					"name" : "red[3]",
+					"strict" : false
+				},
+				{
+					"name" : "red[4]",
+					"strict" : false
+				},
+				{
+					"name" : "red[5]",
+					"strict" : false
+				},
+				{
+					"name" : "red[6]",
+					"strict" : false
+				},
+				{
+					"name" : "red[7]",
+					"strict" : false
+				},
+				{
+					"name" : "green[0]",
+					"strict" : false
+				},
+				{
+					"name" : "green[1]",
+					"strict" : false
+				},
+				{
+					"name" : "green[2]",
+					"strict" : false
+				},
+				{
+					"name" : "green[3]",
+					"strict" : false
+				},
+				{
+					"name" : "green[4]",
+					"strict" : false
+				},
+				{
+					"name" : "green[5]",
+					"strict" : false
+				},
+				{
+					"name" : "green[6]",
+					"strict" : false
+				},
+				{
+					"name" : "green[7]",
+					"strict" : false
+				},
+				{
+					"name" : "blue[0]",
+					"strict" : false
+				},
+				{
+					"name" : "blue[1]",
+					"strict" : false
+				},
+				{
+					"name" : "blue[2]",
+					"strict" : false
+				},
+				{
+					"name" : "blue[3]",
+					"strict" : false
+				},
+				{
+					"name" : "blue[4]",
+					"strict" : false
+				},
+				{
+					"name" : "blue[5]",
+					"strict" : false
+				},
+				{
+					"name" : "blue[6]",
+					"strict" : false
+				},
+				{
+					"name" : "blue[7]",
+					"strict" : false
+				},
+				{
+					"name" : "clk",
+					"strict" : false
+				},
+				{
+					"name" : "blank",
+					"strict" : false
+				},
+				{
+					"name" : "prop_zoom[0]",
+					"strict" : false
+				},
+				{
+					"name" : "prop_zoom[1]",
+					"strict" : false
+				},
+				{
+					"name" : "prop_zoom[2]",
+					"strict" : false
+				},
+				{
+					"name" : "reset",
+					"strict" : false
+				},
+				{
+					"name" : "clock",
+					"strict" : false
+				},
+				{
+					"name" : "but_zoom_in",
+					"strict" : false
+				},
+				{
+					"name" : "but_zoom_out",
+					"strict" : false
+				},
+				{
+					"name" : "switches[3]",
+					"strict" : false
+				},
+				{
+					"name" : "switches[4]",
+					"strict" : false
+				},
+				{
+					"name" : "switches[5]",
+					"strict" : false
+				},
+				{
+					"name" : "but",
+					"strict" : false
+				},
+				{
+					"name" : "switches[6]",
+					"strict" : false
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,85 @@
+module botoes_module (
+	input clk,                    // Clock signal
+	input rst,                    // Reset signal
+	input [2:0] wire escolha_alg, // Algorithm choice
+	input but_zoom_in,            // Zoom in button
+	input but_zoom_out,           // Zoom out button
+	
+	// saida da escala escolhida
+	output reg [1:0] escolhido    // Chosen algorithm
+);
+
+	// Estados possíveis
+	reg [1:0] estado_atual;
+	reg [1:0] estado_proximo;
+	
+	// Parâmetros de estado
+	localparam [1:0] ESTADO_00 = 2'b00;
+	localparam [1:0] ESTADO_01 = 2'b01;
+	localparam [1:0] ESTADO_10 = 2'b10;
+	
+	// Detecção de borda para os botões
+	reg but_zoom_in_prev;
+	reg but_zoom_out_prev;
+	wire zoom_in_pulse;
+	wire zoom_out_pulse;
+	
+	// Detecção de mudança em escolha_alg
+	reg [2:0] escolha_alg_prev;
+	wire escolha_alg_changed;
+	
+	// Assigns para detecção de borda
+	assign zoom_in_pulse = but_zoom_in && !but_zoom_in_prev;
+	assign zoom_out_pulse = but_zoom_out && !but_zoom_out_prev;
+	assign escolha_alg_changed = (escolha_alg != escolha_alg_prev);
+	
+	// Lógica sequencial
+	always @(posedge clk or posedge rst) begin
+		if (rst) begin
+			estado_atual <= ESTADO_00;
+			but_zoom_in_prev <= 1'b0;
+			but_zoom_out_prev <= 1'b0;
+			escolha_alg_prev <= 3'b0;
+			escolhido <= 2'b00;
+		end else begin
+			// Atualiza registradores de detecção de borda
+			but_zoom_in_prev <= but_zoom_in;
+			but_zoom_out_prev <= but_zoom_out;
+			escolha_alg_prev <= escolha_alg;
+			
+			// Atualiza estado atual
+			estado_atual <= estado_proximo;
+			escolhido <= estado_proximo;
+		end
+	end
+	
+	// Lógica combinacional para próximo estado
+	always @(*) begin
+		// Estado padrão: mantém o atual
+		estado_proximo = estado_atual;
+		
+		// Se escolha_alg mudou, volta para estado 00
+		if (escolha_alg_changed) begin
+			estado_proximo = ESTADO_00;
+		end
+		// Se houve clique em zoom_in, avança o estado
+		else if (zoom_in_pulse) begin
+			case (estado_atual)
+				ESTADO_00: estado_proximo = ESTADO_01;
+				ESTADO_01: estado_proximo = ESTADO_10;
+				ESTADO_10: estado_proximo = ESTADO_10; // Permanece em 10
+				default: estado_proximo = ESTADO_00;
+			endcase
+		end
+		// Se houve clique em zoom_out, retrocede o estado
+		else if (zoom_out_pulse) begin
+			case (estado_atual)
+				ESTADO_00: estado_proximo = ESTADO_00; // Permanece em 00
+				ESTADO_01: estado_proximo = ESTADO_00;
+				ESTADO_10: estado_proximo = ESTADO_01;
+				default: estado_proximo = ESTADO_00;
+			endcase
+		end
+	end
+
+endmodule

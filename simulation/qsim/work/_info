@@ -1,0 +1,57 @@
+m255
+K4
+z2
+!s11f vlog 2020.1 2020.02, Feb 28 2020
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 d/home/aluno/Downloads/ternminando-20250919T183809Z-1-001/ternminando/simulation/qsim
+vbotoes_module
+Z1 !s110 1758308470
+!i10b 1
+!s100 <cUkK9G=h7om@UnW40gFK3
+Z2 !s11b Dg1SIo80bB@j0V0VzS_@n1
+IKd7Ua<ZW8kkaOmJ?;AAKC3
+Z3 VDg1SIo80bB@j0V0VzS_@n1
+R0
+w1758308470
+8VGA.vo
+FVGA.vo
+!i122 2
+L0 32 555
+Z4 OV;L;2020.1;71
+r1
+!s85 0
+31
+Z5 !s108 1758308470.000000
+!s107 VGA.vo|
+!s90 -work|work|VGA.vo|
+!i113 1
+Z6 o-work work
+Z7 tCvgOpt 0
+vbotoes_module_vlg_vec_tst
+R1
+!i10b 1
+!s100 7]]9n<Gz:fg6f_L`IeBDd3
+R2
+IgI0Vd=DG=U0zoS6M=J0VR0
+R3
+R0
+w1758308469
+8Waveform.vwf.vt
+FWaveform.vwf.vt
+!i122 3
+L0 30 67
+R4
+r1
+!s85 0
+31
+R5
+!s107 Waveform.vwf.vt|
+!s90 -work|work|Waveform.vwf.vt|
+!i113 1
+R6
+R7

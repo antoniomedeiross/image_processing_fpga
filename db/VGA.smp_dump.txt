@@ -1,0 +1,40 @@
+
+State Machine - |main|vga_driver:vga_inst|v_state
+Name v_state.V_BACK_STATE v_state.V_PULSE_STATE v_state.V_FRONT_STATE v_state.V_ACTIVE_STATE 
+v_state.V_ACTIVE_STATE 0 0 0 0 
+v_state.V_FRONT_STATE 0 0 1 1 
+v_state.V_PULSE_STATE 0 1 0 1 
+v_state.V_BACK_STATE 1 0 0 1 
+
+State Machine - |main|vga_driver:vga_inst|h_state
+Name h_state.H_BACK_STATE h_state.H_PULSE_STATE h_state.H_FRONT_STATE h_state.H_ACTIVE_STATE 
+h_state.H_ACTIVE_STATE 0 0 0 0 
+h_state.H_FRONT_STATE 0 0 1 1 
+h_state.H_PULSE_STATE 0 1 0 1 
+h_state.H_BACK_STATE 1 0 0 1 
+
+State Machine - |main|alu_algoritmos:alu|state
+Name state.S_CALC_AVERAGE_4 state.S_WRITE_RAM_AVG state.S_FETCH_16_READ_ADD state.S_FETCH_16_SET_ADDR state.S_FETCH_16_INIT state.S_FETCH_BLOCK_11 state.S_FETCH_BLOCK_10 state.S_FETCH_BLOCK_01 state.S_FETCH_BLOCK_00 state.S_DONE state.S_WRITE_RAM state.S_READ_ROM state.S_PROCESS_PIXEL state.S_CLEAR_FRAME state.S_IDLE 
+state.S_IDLE 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+state.S_CLEAR_FRAME 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+state.S_PROCESS_PIXEL 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
+state.S_READ_ROM 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
+state.S_WRITE_RAM 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
+state.S_DONE 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
+state.S_FETCH_BLOCK_00 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
+state.S_FETCH_BLOCK_01 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
+state.S_FETCH_BLOCK_10 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
+state.S_FETCH_BLOCK_11 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+state.S_FETCH_16_INIT 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
+state.S_FETCH_16_SET_ADDR 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
+state.S_FETCH_16_READ_ADD 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
+state.S_WRITE_RAM_AVG 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.S_CALC_AVERAGE_4 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+
+State Machine - |main|botoes_module:butoes|estado_atual
+Name estado_atual.ESTADO_05X estado_atual.ESTADO_4X estado_atual.ESTADO_2X estado_atual.ESTADO_1X estado_atual.ESTADO_025X 
+estado_atual.ESTADO_1X 0 0 0 0 0 
+estado_atual.ESTADO_2X 0 0 1 1 0 
+estado_atual.ESTADO_4X 0 1 0 1 0 
+estado_atual.ESTADO_05X 1 0 0 1 0 
+estado_atual.ESTADO_025X 0 0 0 1 1 

@@ -1,0 +1,67 @@
+module copy_controller (
+    input wire clk,
+    input wire reset,
+    output reg copy_done,
+    output reg [18:0] copy_addr,  // 19 bits para endereçar 307200 posições
+    output reg copy_wren,
+    output reg [7:0] copy_data
+);
+
+localparam IDLE = 2'b00;
+localparam COPYING = 2'b01;
+localparam DONE = 2'b10;
+
+reg [1:0] state;
+reg [14:0] counter;  // 15 bits para 19200 pixels
+
+// Memória ROM com a imagem (160x120 = 19200 pixels)
+reg [7:0] rom [0:19199];
+
+// Inicialização da ROM a partir do arquivo .mif
+initial begin
+    $readmemh("imagem.mif", rom);
+end
+
+// Leitura síncrona da ROM
+always @(posedge clk) begin
+    if (state == COPYING) begin
+        copy_data <= rom[counter];
+    end else begin
+        copy_data <= 8'h00;
+    end
+end
+
+// Máquina de estados principal - copia automaticamente no reset
+always @(posedge clk or posedge reset) begin
+    if (reset) begin
+        state <= COPYING;  // Começa a copiar automaticamente no reset
+        counter <= 15'd0;
+        copy_addr <= 19'd0;
+        copy_wren <= 1'b1;
+        copy_done <= 1'b0;
+    end else begin
+        case (state)
+            COPYING: begin
+                if (counter < 15'd19199) begin  // Copia 19200 pixels
+                    counter <= counter + 15'd1;
+                    copy_addr <= copy_addr + 19'd1;
+                end else begin
+                    state <= DONE;
+                    copy_wren <= 1'b0;
+                    copy_done <= 1'b1;
+                end
+            end
+            
+            DONE: begin
+                // Permanece em DONE até próximo reset
+                copy_done <= 1'b1;
+            end
+            
+            default: begin
+                state <= COPYING;
+            end
+        endcase
+    end
+end
+
+endmodule
