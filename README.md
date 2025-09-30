@@ -33,3 +33,14 @@ Este repositório reúne os códigos-fonte, scripts e documentação completa do
 - Saída de vídeo pela porta **VGA** da placa.  
 - Compatibilidade futura com o **HPS (ARM Hard Processor System)** para integração com software.  
 
+## Sumário
+
+   * [Arquitetura Geral do Projeto](#arquiterura_geral)
+   * [ULA dos Algoritmos](#ula)
+   * [Máquina de Estados dos Algoritmos](#maquina_estados_algoritmos)
+      * [REPLICAÇÃO](#fetch)
+      * [MÉDIA DE BLOCOS](#decode)
+      * [DECIMAÇÃO](#execute)
+      * [VIZINHO MAIS PROXIMO](#memory)
+   * [Testes](#testes) 
+   * [Referências](#referencias)
