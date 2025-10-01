@@ -152,7 +152,4 @@ Foram realizados testes nos três modos principais, exibidos na saída VGA:
 - **Zoom Out 0.5x (2×2)**  
 - **Zoom Out 0.25x (4×4)**  
 
-<figure style="text-align:center">
-  <img src="src/media.gif" alt="GIF - Zoom Out 0.5x" width="600"/>
-  <figcaption><strong>Figura 2:</strong> Funcionamento do algoritmo média de blocos — saída VGA.</figcaption>
-</figure>
+![Funcionamento do algoritmo média de blocos — saída VGA.](src/media.gif)
