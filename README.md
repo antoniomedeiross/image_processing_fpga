@@ -142,7 +142,113 @@ O sistema foi projetado para ser interativo, permitindo que o usuário altere di
  
 
 ## ULA dos Algoritmos
-  ?
+
+O módulo `alu_algoritmos` é responsável por aplicar diferentes algoritmos de **processamento e redimensionamento de imagens** em hardware (FPGA), utilizando dados de uma memória ROM (imagem original) e gravando o resultado em uma memória RAM (framebuffer de vídeo VGA 640x480).  
+
+Ele suporta **operações de zoom e interpolação** (replicação, vizinho mais próximo e médias de blocos) controladas via entradas de controle.
+
+---
+
+## 🔧 Interface do Módulo
+
+### Entradas
+- `clk` → Clock do sistema.  
+- `reset` → Reset assíncrono.  
+- `zoom_enable [2:0]` → Define o nível de zoom:  
+  - `000` → Normal (1x)  
+  - `001` → Zoom in 2x  
+  - `010` → Zoom in 4x  
+  - `011` → Zoom out 0.5x  
+  - `100` → Zoom out 0.25x  
+- `tipo_alg [3:0]` → Define o algoritmo aplicado:  
+  - `0000` → Sem algoritmo (cópia direta da ROM para RAM).  
+  - `0001` → Média de blocos (2x2 ou 4x4 → downsampling).  
+  - `0010` → Vizinho mais próximo (zoom in: 1x, 2x, 4x).  
+  - `0011` → Vizinho mais próximo (zoom out: 0.5x, 0.25x).  
+  - `0100` → Replicação (zoom in 2x).  
+- `rom_data_in [7:0]` → Pixel lido da ROM (imagem original).  
+- `botao_zoom_in` → Controle manual de zoom in.  
+- `botao_zoom_out` → Controle manual de zoom out.  
+
+### Saídas
+- `rom_addr_out [14:0]` → Endereço de leitura da ROM.  
+- `ram_data_out [7:0]` → Pixel a ser escrito na RAM (framebuffer).  
+- `ram_addr_out [18:0]` → Endereço de escrita na RAM.  
+- `ram_wren_out` → Habilita escrita na RAM.  
+- `done` → Indica fim do processamento da imagem.  
+
+---
+
+## 📐 Parâmetros e Definições
+
+- **Imagem original (ROM):**  
+  - Largura = 160 px  
+  - Altura = 120 px  
+
+- **Framebuffer (RAM):**  
+  - Largura = 640 px  
+  - Altura = 480 px  
+  - Formato = 8 bits/pixel (grayscale).  
+
+- **Offsets calculados automaticamente** para centralizar a imagem na tela, variando conforme o zoom (1x, 2x, 4x, 0.5x, 0.25x).  
+
+---
+
+## ⚙️ Algoritmos Implementados
+
+1. **Sem processamento (`tipo_alg = 0000`)**  
+   - Copia direta da ROM para RAM.  
+   - Imagem centralizada no framebuffer.  
+
+2. **Média de blocos (`tipo_alg = 0001`)**  
+   - **Normal (1x):** Cópia simples.  
+   - **Zoom out 0.5x:** Média de blocos 2x2 (downsampling).  
+   - **Zoom out 0.25x:** Média de blocos 4x4.  
+
+3. **Vizinho mais próximo (`tipo_alg = 0010` e `0011`)**  
+   - **Zoom in 2x:** Repete cada pixel em bloco 2x2.  
+   - **Zoom in 4x:** Repete cada pixel em bloco 4x4.  
+   - **Zoom out 0.5x e 0.25x:** Seleciona o pixel mais próximo ao redimensionar.  
+
+4. **Replicação (`tipo_alg = 0100`)**  
+   - Algoritmo simples de duplicação direta de pixels (zoom in 2x).  
+
+---
+
+## 🔄 Máquina de Estados (FSMs)
+
+Cada algoritmo possui uma **FSM dedicada** para controlar:  
+1. Leitura da ROM.  
+2. Cálculo (média, replicação ou vizinho mais próximo).  
+3. Escrita do pixel resultante na RAM.  
+4. Controle de bordas (pixels fora da área válida → preto).  
+5. Finalização (`done = 1`).  
+
+---
+
+## 🚀 Fluxo Geral de Operação
+
+1. O módulo inicia em `S_IDLE`.  
+2. Limpa a RAM (ou apenas bordas, dependendo do algoritmo).  
+3. Itera pixel por pixel, calculando o resultado.  
+4. Grava na RAM de vídeo.  
+5. Ao final, ativa `done = 1`.  
+
+---
+
+## 📊 Exemplos de Uso
+
+- `zoom_enable = 3'b000` + `tipo_alg = 0000` → Mostra a imagem original centralizada.  
+- `zoom_enable = 3'b001` + `tipo_alg = 0010` → Vizinho mais próximo 2x.  
+- `zoom_enable = 3'b011` + `tipo_alg = 0001` → Zoom out 0.5x com média de blocos 2x2.  
+- `zoom_enable = 3'b100` + `tipo_alg = 0001` → Zoom out 0.25x com média 4x4.  
+
+---
+
+## 🖼️ Saída Final
+
+- O framebuffer RAM resultante é utilizado para **geração de vídeo VGA 640x480**, exibindo a imagem original (ROM) processada conforme o algoritmo e fator de zoom selecionados.  
+
 
 
 ## Algoritmos de Interpolação
