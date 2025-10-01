@@ -42,7 +42,6 @@ Este repositório reúne os códigos-fonte, scripts e documentação completa do
   * [Replicação de Pixel](#replicação-de-pixel)
   * [Média de Blocos](#média-de-blocos)
   * [Vizinho Mais Próximo](#vizinho-mais-próximo)
-* [Testes](#testes)
 * [Resultados](#Resultados-Gerais-da-Implementação-do-Projeto)
 * [Referências](#referências)
 
@@ -150,7 +149,7 @@ Ele suporta **operações de zoom e interpolação** (replicação, vizinho mais
 
 ---
 
-## 🔧 Interface do Módulo
+## Interface do Módulo
 
 ### Entradas
 - `clk` → Clock do sistema.  
@@ -180,7 +179,7 @@ Ele suporta **operações de zoom e interpolação** (replicação, vizinho mais
 
 ---
 
-## 📐 Parâmetros e Definições
+## Parâmetros e Definições
 
 - **Imagem original (ROM):**  
   - Largura = 160 px  
@@ -195,7 +194,7 @@ Ele suporta **operações de zoom e interpolação** (replicação, vizinho mais
 
 ---
 
-## ⚙️ Algoritmos Implementados
+## Algoritmos Implementados
 
 1. **Sem processamento (`tipo_alg = 0000`)**  
    - Copia direta da ROM para RAM.  
@@ -216,7 +215,7 @@ Ele suporta **operações de zoom e interpolação** (replicação, vizinho mais
 
 ---
 
-## 🔄 Máquina de Estados (FSMs)
+## Máquina de Estados (FSMs)
 
 Cada algoritmo possui uma **FSM dedicada** para controlar:  
 1. Leitura da ROM.  
@@ -227,7 +226,7 @@ Cada algoritmo possui uma **FSM dedicada** para controlar:
 
 ---
 
-## 🚀 Fluxo Geral de Operação
+## Fluxo Geral de Operação
 
 1. O módulo inicia em `S_IDLE`.  
 2. Limpa a RAM (ou apenas bordas, dependendo do algoritmo).  
@@ -237,7 +236,7 @@ Cada algoritmo possui uma **FSM dedicada** para controlar:
 
 ---
 
-## 📊 Exemplos de Uso
+## Exemplos de Uso
 
 - `zoom_enable = 3'b000` + `tipo_alg = 0000` → Mostra a imagem original centralizada.  
 - `zoom_enable = 3'b001` + `tipo_alg = 0010` → Vizinho mais próximo 2x.  
@@ -246,7 +245,7 @@ Cada algoritmo possui uma **FSM dedicada** para controlar:
 
 ---
 
-## 🖼️ Saída Final
+## Saída Final
 
 - O framebuffer RAM resultante é utilizado para **geração de vídeo VGA 640x480**, exibindo a imagem original (ROM) processada conforme o algoritmo e fator de zoom selecionados.  
 
@@ -272,7 +271,7 @@ A lógica para um zoom de 2x pode ser visualizada da seguinte forma: um único p
 ---
 
 ![Lógica de replicação de pixels](src/replicacao.drawio.png)  
-*Figura 1 — Diagrama da Lógica de replicação de pixels.*
+*Figura 2 — Diagrama da Lógica de replicação de pixels.*
 
 ---
 
@@ -307,7 +306,7 @@ A FSM implementada em Verilog segue um fluxo lógico para garantir que a imagem 
 ---
 
 ![Diagrama de estados do algoritmo de replicação](src/diagrama_estados_replicacao.drawio.png)  
-*Figura x — Diagrama de estados do algoritmo de replicação de pixels.*
+*Figura 3 — Diagrama de estados do algoritmo de replicação de pixels.*
 
 ---
 
@@ -393,7 +392,7 @@ Sequência de 16 leituras:
 #### Diagrama da FSM
 
 ![Diagrama da FSM da Média de Blocos](src/diagrama_bloco.jpg)  
-*Figura 1 — Diagrama da FSM para Média de Blocos. Estados e transições principais.*
+*Figura 4 — Diagrama da FSM para Média de Blocos. Estados e transições principais.*
 
 ---
 
@@ -438,24 +437,24 @@ Foram realizados testes nos três modos principais, exibidos na saída VGA:
 
 
 
-## Vizinho Mais Próximo
+### Vizinho Mais Próximo
 
 O algoritmo de redimensionamento de imagens Vizinho Mais Próximo realiza operações de **zoom in** (aumentar) e **zoom out** (diminuir) em tempo real, lendo uma imagem da memória ROM e escrevendo o resultado em um framebuffer (RAM) para mostrar em um monitor VGA.
 
-## Visão Geral
+### Visão Geral
 
 O algoritmo Vizinho Mais Próximo é uma técnica simples e rápida para redimensionar imagens, ideal para hardware como FPGAs porque não precisa de cálculos complicados. A ideia básica é: para cada ponto na nova imagem, encontrar o pixel mais próximo na imagem original e copiar sua cor.
 
 O projeto usa **Máquinas de Estados Finitos (FSM)** para controlar o fluxo de dados entre a ROM (imagem original) e a RAM (imagem de saída).
 
-## Características Principais
+### Características Principais
 
 - **Rápido e Simples**: Não faz cálculos complexos
 - **Controle por FSM**: Gerencia leitura, processamento e escrita dos pixels
 - **Zoom In e Zoom Out**: Suporta aumentar (2x, 4x) e diminuir (0.5x, 0.25x)
 - **Centralizado**: Imagem sempre no centro da tela VGA (640x480)
 
-## Como Funciona
+### Como Funciona
 
 O algoritmo mapeia cada pixel da imagem final `(x_out, y_out)` para sua posição correspondente `(x_in, y_in)` na imagem original:
 
@@ -468,7 +467,7 @@ Esta versão foca exclusivamente na ampliação da imagem. Sua lógica é: ela l
 O fluxo de controle desta versão é representado pelo seguinte diagrama:
 
 ![Diagrama de estados do algoritmo vizinho in](src/diagrama_vizinho_in.png)  
-*Figura 1 — Diagrama da FSM para ampliação (Zoom In) por replicação de pixels.*
+*Figura 5 — Diagrama da FSM para ampliação (Zoom In) por replicação de pixels.*
 
 #### Fluxo da FSM (Versão 1)
 
@@ -485,16 +484,16 @@ O fluxo de controle desta versão é representado pelo seguinte diagrama:
 - **Zoom 2x**: Cada pixel da ROM é replicado em um bloco 2x2 na RAM.
 - **Zoom 4x**: Cada pixel da ROM é replicado em um bloco 4x4 na RAM.
 
-# Versão 2: Zoom Out
+### Versão 2: Zoom Out
 
 Diferente da versão anterior, aqui a máquina de estados percorre cada pixel do framebuffer de destino na RAM e "puxa" o pixel correspondente da memória ROM usando um cálculo de mapeamento reverso.
 
-## Diagrama da FSM (Versão 2)
+### Diagrama da FSM (Versão 2)
 
 ![Diagrama de estados do vizinho out](src/diagrama_vizinho_out.png)  
-*Figura 2 — Diagrama da máquina de estados para modo Normal e Zoom Out.*
+*Figura 6 — Diagrama da máquina de estados para modo Normal e Zoom Out.*
 
-## Fluxo de Operação da FSM (Versão 2)
+####Fluxo de Operação da FSM (Versão 2)
 
 1. **VZ05_IDLE**: Estado inicial que prepara o contador da RAM para começar a leitura do framebuffer.
 
@@ -513,7 +512,7 @@ Diferente da versão anterior, aqui a máquina de estados percorre cada pixel do
 
 7. **VZ05_DONE**: Estado final que indica a conclusão do processamento depois que todos os pixels foram analisados.
 
-## Modos de Funcionamento Suportados
+### Modos de Funcionamento Suportados
 
 - **Modo Normal (1x)**: Realiza uma cópia direta pixel a pixel da imagem original, aplicando apenas os ajustes de posicionamento para centralização na tela.
 
@@ -521,11 +520,11 @@ Diferente da versão anterior, aqui a máquina de estados percorre cada pixel do
 
 > **Observação Importante**: As operações de Zoom In (aumento) são gerenciadas apenas pela Versão 1 deste projeto, que utiliza uma técnica diferente mais adequada para esse tipo de operação.
 
-## Resultados vizinho in:
+### Resultados vizinho in:
 
 ![Resultado do algoritmo de vizinho mais próximo em zoom in](src/video_viz_in.gif)  
 
-## Resultados vizinho out:
+### Resultados vizinho out:
 
 ![Resultado do algoritmo de vizinho mais próximo em zoom out](src/video_viz_out.gif)  
 
@@ -557,3 +556,15 @@ Para versões futuras, é recomendável:
 No geral, o projeto valida a viabilidade de um **coprocessador gráfico em FPGA** para operações de zoom, apresentando alta performance e baixo consumo de recursos, mesmo considerando as pequenas limitações temporais identificadas.
 
 ## Referências
+
+- GALAPPLE. *Image Processing - Verilog*. Disponível em: [https://github.com/Galapple/Image-processing---Verilog](https://github.com/Galapple/Image-processing---Verilog). Acesso em: set. 2025.
+
+- OpenCores. *Projects – Processor Category*. Disponível em:  
+  https://opencores.org/projects?category=Processor&expanded=Processor  
+  Plataformas de hardware open source para processamento digital, servindo de base conceitual para arquiteturas de ALU.  
+
+- Playlist no YouTube – Image Processing on Zynq (FPGAs):  
+  [YouTube – Playlist de projetos digitais e processadores](https://www.youtube.com/watch?v=Zm3KzhahbUg&list=PL1tvZA53A9hJnwmiqPt1KeXrAQ9kd52H2)  
+
+> Observação: essas referências foram consultadas como base teórica, inspiração ou comparação para este projeto.
+
