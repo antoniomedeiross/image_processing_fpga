@@ -112,6 +112,20 @@ A FSM implementada em Verilog segue um fluxo lógico para garantir que a imagem 
 
 ---
 
+### Resultados
+O algoritmo foi funcional em todos os modos propostos (1x, 2x e 4x), com o controle de seleção via chaves da placa respondendo em tempo real.
+
+#### Análise Visual
+
+![Funcionamento do algoritmo média de replicação — saída VGA.](src/replicacao_gif.gif)
+
+O coprocessador executou a replicação em **tempo real**. A arquitetura da máquina de estados, operando em sincronia com o clock do sistema(25 MHz), garantiu que a imagem fosse processada e escrita na memória de vídeo de forma determinística e com latência mínima. Não houve qualquer tipo de atraso ou "tearing" visível no monitor, validando a eficiência da implementação em hardware.
+
+ **Consumo de Recursos de Hardware:** Uma das principais vantagens deste algoritmo é sua simplicidade, que se traduziu diretamente em um baixo consumo de recursos da FPGA. Mais importante, o design **não necessitou de multiplicadores ou divisores de hardware**, que são componentes caros em termos de área no chip. Isso confirma que a Replicação de Pixel é uma solução extremamente econômica para ampliação de imagens quando a qualidade visual não é o fator crítico.
+ 
+Em suma, os resultados validam que a implementação em hardware do algoritmo de Replicação de Pixel na DE1-SoC foi um sucesso, operando com alta performance e baixo custo de recursos, ao mesmo tempo que demonstrou as conhecidas limitações de qualidade visual inerentes a este método de ampliação
+
+
 
 ### MÉDIA DE BLOCOS
 
@@ -305,3 +319,9 @@ Diferente da versão anterior, aqui a máquina de estados percorre cada pixel do
 - **Zoom Out 0.5x e 0.25x**: A redução de tamanho acontece de forma natural através do processo de subamostragem. Durante o cálculo das coordenadas, múltiplos pixels da imagem original são ignorados, resultando em uma versão menor da imagem.
 
 > **Observação Importante**: As operações de Zoom In (aumento) são gerenciadas apenas pela Versão 1 deste projeto, que utiliza uma técnica diferente mais adequada para esse tipo de operação.
+
+
+## Resultados Gerais da Implementação do Projeto
+  - falar do erro da  borda
+  - falar do erro ao mudar algoritmos rapido
+  - falar dos resto
