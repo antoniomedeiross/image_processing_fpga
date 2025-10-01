@@ -467,6 +467,7 @@ Esta versão foca exclusivamente na ampliação da imagem. Sua lógica é: ela l
 
 O fluxo de controle desta versão é representado pelo seguinte diagrama:
 
+![Diagrama de estados do algoritmo vizinho in](src/diagrama_vizinho_in.png)  
 *Figura 1 — Diagrama da FSM para ampliação (Zoom In) por replicação de pixels.*
 
 #### Fluxo da FSM (Versão 1)
