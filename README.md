@@ -50,6 +50,7 @@ Este repositório reúne os códigos-fonte, scripts e documentação completa do
 O sistema foi implementado na placa **DE1-SoC** e possui como objetivo realizar operações de **zoom digital** em imagens monocromáticas, utilizando hardware dedicado em FPGA. A comunicação entre os módulos segue o diagrama de blocos abaixo:
 
 ![Diagrama de Blocos](src/diagrama_blocos_zoom.drawio.png)
+*Figura 1 - Diagrama de Blocos do Projeto*
 
 ### Descrição dos Módulos
 
@@ -138,9 +139,7 @@ O sistema foi projetado para ser interativo, permitindo que o usuário altere di
 4. **ALU → Redimensiona (Zoom)**  
 5. **RAM → Framebuffer (640x480)**  
 6. **VGA Driver → Exibição no Monitor**
-
-![Diagrama de Blocos](diagrama_blocos_zoom.drawio.png)
-* 
+ 
 
 ## ULA dos Algoritmos
   ?
