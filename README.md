@@ -33,22 +33,21 @@ Este repositório reúne os códigos-fonte, scripts e documentação completa do
 - Saída de vídeo pela porta **VGA** da placa.  
 - Compatibilidade futura com o **HPS (ARM Hard Processor System)** para integração com software.  
 
+
 ## Sumário
 
-   * [Arquitetura Geral do Projeto](#arquiterura_geral)
-   * [ULA dos Algoritmos](#ula)
-   * [Algoritmos de Interpolação](#maquina_estados_algoritmos)
-      * [REPLICAÇÃO](#replicacao)
-      * [MÉDIA DE BLOCOS](#decode)
-      * [DECIMAÇÃO](#execute)
-      * [VIZINHO MAIS PROXIMO](#memory)
-   * [Testes](#testes) 
-   * [Referências](#referencias)
+* [Arquitetura Geral do Projeto](#arquitetura-geral-do-projeto)
+* [ULA dos Algoritmos](#ula-dos-algoritmos)
+* [Algoritmos de Interpolação](#algoritmos-de-interpolação)
+  * [Replicação de Pixel](#replicação-de-pixel)
+  * [Média de Blocos](#média-de-blocos)
+  * [Decimação](#decimação)
+  * [Vizinho Mais Próximo](#vizinho-mais-próximo)
+* [Testes](#testes)
+* [Referências](#referências)
 
-<div id="arquiterura_geral">
 ## Arquitetura Geral do Projeto
-   nada ainda
-</div>
+... conteúdo aqui ...
 
 ## ULA dos Algoritmos
   ?
