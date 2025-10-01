@@ -564,7 +564,15 @@ No geral, o projeto valida a viabilidade de um **coprocessador gráfico em FPGA*
   Plataformas de hardware open source para processamento digital, servindo de base conceitual para arquiteturas de ALU.  
 
 - Playlist no YouTube – Image Processing on Zynq (FPGAs):  
-  [YouTube – Playlist de projetos digitais e processadores](https://www.youtube.com/watch?v=Zm3KzhahbUg&list=PL1tvZA53A9hJnwmiqPt1KeXrAQ9kd52H2)  
+  [YouTube – Playlist de projetos digitais e processadores](https://www.youtube.com/watch?v=Zm3KzhahbUg&list=PL1tvZA53A9hJnwmiqPt1KeXrAQ9kd52H2)
+
+- [FPGA Video Design](https://www.bing.com/videos/riverview/relatedvideo?q=image%20design%20with%20fpga&mid=2AD0652C995BFD33725C2AD0652C995BFD33725C&ajaxhist=0) - Design de sistemas de vídeo
+
+- [FPGA_image_processing](https://github.com/example/FPGA_image_processing) - Repositório de referência
+
+- [FPGA Image Processing Tutorial](https://www.youtube.com/watch?v=MVu5OAFZhKA) - Implementação passo a passo
+
+- [FPGA4Student - Image Processing](https://www.fpga4student.com/2016/11/image-processing-on-fpga-verilog.html) - Exemplos em Verilog
 
 > Observação: essas referências foram consultadas como base teórica, inspiração ou comparação para este projeto.
 
