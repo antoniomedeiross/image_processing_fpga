@@ -45,8 +45,102 @@ Este repositório reúne os códigos-fonte, scripts e documentação completa do
 * [Testes](#testes)
 * [Referências](#referências)
 
-## Arquitetura Geral do Projeto
-... conteúdo aqui ...
+## Arquitetura Geral do Sistema
+
+O sistema foi implementado na placa **DE1-SoC** e possui como objetivo realizar operações de **zoom digital** em imagens monocromáticas, utilizando hardware dedicado em FPGA. A comunicação entre os módulos segue o diagrama de blocos abaixo:
+
+![Diagrama de Blocos](diagrama_blocos_zoom.drawio.png)
+
+### Descrição dos Módulos
+
+- **Clock Divider (50 MHz → 25 MHz)**  
+  Converte o clock nativo da placa (50 MHz) em 25 MHz, frequência necessária para gerar os sinais compatíveis com o driver VGA.
+
+- **Controle de Botões**  
+  Responsável por capturar as entradas dos botões e chaves da placa. Permite:  
+  - Selecionar o algoritmo de zoom (via `switches[6:3]`).  
+  - Controlar o **zoom in** e **zoom out** (via `but_zoom_in` e `but_zoom_out`).  
+  - Gerar o sinal `prop_zoom` que define o fator de escala:  
+    - `000` → 1x (sem zoom)  
+    - `001` → 2x  
+    - `010` → 4x  
+    - `011` → 0.5x (redução)  
+    - `100` → 0.25x (redução)  
+
+- **ROM (Read Only Memory)**  
+  Contém a imagem original armazenada (resolução de 160x120). Fornece os pixels de entrada para a ALU.
+
+- **ALU de Algoritmos**  
+  Implementa os diferentes algoritmos de redimensionamento de imagem em **hardware** (em Verilog).  
+  - Recebe dados da ROM.  
+  - Processa os pixels de acordo com o fator de zoom escolhido (`prop_zoom`) e o tipo de algoritmo (`tipo_alg`).  
+  - Escreve os pixels redimensionados na RAM.  
+  - Sinaliza término da operação via `done`.
+
+- **RAM (Framebuffer 640x480)**  
+  Memória dual-port usada como framebuffer para armazenar a imagem processada.  
+  - Porta de escrita → recebe dados da ALU.  
+  - Porta de leitura → envia pixels para o VGA Driver.
+
+- **VGA Driver**  
+  Lê a imagem armazenada na RAM e gera os sinais de sincronismo e cor para o monitor VGA.  
+  - Suporta resolução de **640x480 @ 60 Hz**.  
+  - Mapeia os valores da RAM em níveis de cinza (0–255).  
+
+### Fluxo de Dados
+
+1. O **usuário** seleciona o fator de zoom e o algoritmo pelas **chaves e botões** da placa.  
+2. O **Controle de Botões** gera o sinal `prop_zoom` que é enviado para a **ALU de Algoritmos**.  
+3. A **ROM** fornece os pixels originais da imagem.  
+4. A **ALU** processa os pixels conforme o fator de zoom e escreve o resultado na **RAM**.  
+5. O **VGA Driver** lê continuamente os pixels da RAM e exibe o resultado na tela em tempo real.  
+
+---
+
+## Fluxo de Operação do Zoom
+
+O sistema foi projetado para ser interativo, permitindo que o usuário altere dinamicamente o **fator de zoom** da imagem. Abaixo está o passo a passo do funcionamento:
+
+### 1. Seleção do Zoom
+- O usuário pressiona os **botões de zoom in/out** na placa DE1-SoC.  
+- O módulo **Controle de Botões** interpreta essa entrada e gera o sinal `prop_zoom` correspondente.  
+  - `000` → 1x (sem zoom)  
+  - `001` → 2x  
+  - `010` → 4x  
+  - `011` → 0.5x  
+  - `100` → 0.25x  
+
+### 2. Leitura da Imagem Original
+- A **ROM** contém a imagem base de resolução **160x120**.  
+- Os pixels são lidos em sequência e enviados para a **ALU de Algoritmos**.
+
+### 3. Processamento na ALU
+- A ALU aplica o **algoritmo de redimensionamento** escolhido (`tipo_alg` via switches).  
+- O fator de zoom (`prop_zoom`) é utilizado para calcular os novos endereços de memória ou duplicar/interpolar pixels.  
+- A imagem resultante é escrita na **RAM (640x480)**.
+
+### 4. Armazenamento no Framebuffer
+- A **RAM** atua como **framebuffer**, ou seja, armazena a versão processada da imagem.  
+- Como é **dual-port**, permite escrita (da ALU) e leitura (do VGA Driver) simultâneas.
+
+### 5. Exibição no Monitor VGA
+- O **VGA Driver** varre continuamente a RAM para gerar os sinais de vídeo.  
+- A imagem processada é exibida em tempo real no monitor VGA com resolução **640x480 @ 60 Hz**.  
+- Cada valor armazenado na RAM é convertido em intensidade de cinza na tela.
+
+---
+
+### Resumo Visual do Fluxo
+
+1. **Usuário → Botões/Chaves**  
+2. **Controle → prop_zoom + tipo_alg**  
+3. **ROM → Pixels Originais (160x120)**  
+4. **ALU → Redimensiona (Zoom)**  
+5. **RAM → Framebuffer (640x480)**  
+6. **VGA Driver → Exibição no Monitor**
+
+![Diagrama de Blocos](diagrama_blocos_zoom.drawio.png)
+* 
 
 ## ULA dos Algoritmos
   ?
