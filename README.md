@@ -41,7 +41,7 @@ Este repositório reúne os códigos-fonte, scripts e documentação completa do
 * [Algoritmos de Interpolação](#algoritmos-de-interpolação)
   * [Replicação de Pixel](#replicação-de-pixel)
   * [Média de Blocos](#média-de-blocos)
-  * [Vizinho Mais Próximo](#Vizinho-Mais-Próximo-(Nearest-Neighbor))
+  * [Vizinho Mais Próximo](#vizinho-mais-próximo)
 * [Testes](#testes)
 * [Referências](#referências)
 
@@ -238,7 +238,7 @@ Foram realizados testes nos três modos principais, exibidos na saída VGA:
 
 
 
-## Vizinho Mais Próximo (Nearest Neighbor)
+## Vizinho Mais Próximo
 
 O algoritmo de redimensionamento de imagens Vizinho Mais Próximo realiza operações de **zoom in** (aumentar) e **zoom out** (diminuir) em tempo real, lendo uma imagem da memória ROM e escrevendo o resultado em um framebuffer (RAM) para mostrar em um monitor VGA.
 
