@@ -111,7 +111,7 @@ Sequência de 16 leituras:
 
 #### Diagrama da FSM
 
-![Diagrama da FSM da Média de Blocos](docs/diagrams/fsm_block_av.png)  
+![Diagrama da FSM da Média de Blocos](src/diagrama_bloco.jpg)  
 *Figura 1 — Diagrama da FSM para Média de Blocos. Estados e transições principais.*
 
 ---
@@ -152,14 +152,7 @@ Foram realizados testes nos três modos principais, exibidos na saída VGA:
 - **Zoom Out 0.5x (2×2)**  
 - **Zoom Out 0.25x (4×4)**  
 
-##### Exemplos:
-
 <figure style="text-align:center">
-  <img src="docs/gifs/zoom_out_2x.gif" alt="GIF - Zoom Out 0.5x" width="600"/>
-  <figcaption><strong>Figura 2:</strong> Funcionamento do modo Zoom Out 0.5× (Média 2×2) — saída VGA.</figcaption>
-</figure>
-
-<figure style="text-align:center">
-  <img src="docs/gifs/zoom_out_4x.gif" alt="GIF - Zoom Out 0.25x" width="600"/>
-  <figcaption><strong>Figura 3:</strong> Funcionamento do modo Zoom Out 0.25× (Média 4×4) — saída VGA.</figcaption>
+  <img src="src/media.gif" alt="GIF - Zoom Out 0.5x" width="600"/>
+  <figcaption><strong>Figura 2:</strong> Funcionamento do algoritmo média de blocos — saída VGA.</figcaption>
 </figure>
