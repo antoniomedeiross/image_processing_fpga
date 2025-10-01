@@ -37,14 +37,24 @@ Este repositório reúne os códigos-fonte, scripts e documentação completa do
 
    * [Arquitetura Geral do Projeto](#arquiterura_geral)
    * [ULA dos Algoritmos](#ula)
-   * [Máquina de Estados dos Algoritmos](#maquina_estados_algoritmos)
-      * [REPLICAÇÃO](#fetch)
+   * [Algoritmos de Interpolação](#maquina_estados_algoritmos)
+      * [REPLICAÇÃO](#replicacao)
       * [MÉDIA DE BLOCOS](#decode)
       * [DECIMAÇÃO](#execute)
       * [VIZINHO MAIS PROXIMO](#memory)
    * [Testes](#testes) 
    * [Referências](#referencias)
 
+<div id="arquiterura_geral">
+## Arquitetura Geral do Projeto
+   nada ainda
+</div>
+
+## ULA dos Algoritmos
+  ?
+
+
+## Algoritmos de Interpolação
 
 ### <a name="replicacao"></a> Replicação de Pixel
 
