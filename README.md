@@ -521,11 +521,11 @@ Diferente da versão anterior, aqui a máquina de estados percorre cada pixel do
 
 > **Observação Importante**: As operações de Zoom In (aumento) são gerenciadas apenas pela Versão 1 deste projeto, que utiliza uma técnica diferente mais adequada para esse tipo de operação.
 
-##Resultados vizinho in:
+## Resultados vizinho in:
 
 ![Resultado do algoritmo de vizinho mais próximo em zoom in](src/video_viz_in.gif)  
 
-##Resultados vizinho out:
+## Resultados vizinho out:
 
 ![Resultado do algoritmo de vizinho mais próximo em zoom out](src/video_viz_out.gif)  
 
