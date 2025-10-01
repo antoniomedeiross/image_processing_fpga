@@ -491,6 +491,7 @@ Diferente da versão anterior, aqui a máquina de estados percorre cada pixel do
 
 ## Diagrama da FSM (Versão 2)
 
+![Diagrama de estados do vizinho out](src/diagrama_vizinho_out.png)  
 *Figura 2 — Diagrama da máquina de estados para modo Normal e Zoom Out.*
 
 ## Fluxo de Operação da FSM (Versão 2)
