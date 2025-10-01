@@ -41,8 +41,7 @@ Este repositório reúne os códigos-fonte, scripts e documentação completa do
 * [Algoritmos de Interpolação](#algoritmos-de-interpolação)
   * [Replicação de Pixel](#replicação-de-pixel)
   * [Média de Blocos](#média-de-blocos)
-  * [Decimação](#decimação)
-  * [Vizinho Mais Próximo](#vizinho-mais-próximo)
+  * [Vizinho Mais Próximo](#Vizinho-Mais-Próximo-(Nearest-Neighbor))
 * [Testes](#testes)
 * [Referências](#referências)
 
@@ -55,7 +54,7 @@ Este repositório reúne os códigos-fonte, scripts e documentação completa do
 
 ## Algoritmos de Interpolação
 
-### <a name="replicacao"></a> Replicação de Pixel
+###  Replicação de Pixel
 
 O algoritmo de **Replicação de Pixel** é uma técnica de ampliação de imagem (zoom in) onde cada pixel da imagem original é copiado para formar um bloco de pixels na imagem de destino. É um dos métodos mais simples e rápidos de implementar em hardware, pois não exige cálculos complexos como interpolação.
 
@@ -239,7 +238,7 @@ Foram realizados testes nos três modos principais, exibidos na saída VGA:
 
 
 
-# Vizinho Mais Próximo (Nearest Neighbor)
+## Vizinho Mais Próximo (Nearest Neighbor)
 
 O algoritmo de redimensionamento de imagens Vizinho Mais Próximo realiza operações de **zoom in** (aumentar) e **zoom out** (diminuir) em tempo real, lendo uma imagem da memória ROM e escrevendo o resultado em um framebuffer (RAM) para mostrar em um monitor VGA.
 
