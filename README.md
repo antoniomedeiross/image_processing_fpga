@@ -72,7 +72,7 @@ A lógica para um zoom de 2x pode ser visualizada da seguinte forma: um único p
 
 ---
 
-![Lógica de replicação de pixels](src/replicacao.png)  
+![Lógica de replicação de pixels](src/replicacao.drawio.png)  
 *Figura 1 — Diagrama da Lógica de replicação de pixels.*
 
 ---
@@ -107,7 +107,7 @@ A FSM implementada em Verilog segue um fluxo lógico para garantir que a imagem 
 
 ---
 
-![Diagrama de estados do algoritmo de replicação](src/replicacao.png)  
+![Diagrama de estados do algoritmo de replicação](src/diagrama_estados_replicacao.drawio.png)  
 *Figura x — Diagrama de estados do algoritmo de replicação de pixels.*
 
 ---
