@@ -45,6 +45,65 @@ Este repositório reúne os códigos-fonte, scripts e documentação completa do
    * [Testes](#testes) 
    * [Referências](#referencias)
 
+
+### <a name="replicacao"></a> Replicação de Pixel
+
+O algoritmo de **Replicação de Pixel** é uma técnica de ampliação de imagem (zoom in) onde cada pixel da imagem original é copiado para formar um bloco de pixels na imagem de destino. É um dos métodos mais simples e rápidos de implementar em hardware, pois não exige cálculos complexos como interpolação.
+
+Neste projeto, o algoritmo suporta três modos:
+* **1x (Cópia Direta):** A imagem é copiada para o centro da tela, sem alteração de tamanho.
+* **2x (Ampliação):** Cada pixel da imagem original é replicado para um bloco de 2x2 pixels na imagem de saída.
+* **4x (Ampliação):** Cada pixel da imagem original é replicado para um bloco de 4x4 pixels na imagem de saída.
+
+O funcionamento é controlado por uma Máquina de Estados Finitos (FSM) que gerencia o fluxo de leitura da imagem original (armazenada em ROM) e escrita na memória de vídeo (RAM), que será exibida no monitor VGA.
+
+#### Diagrama Conceitual (Zoom 2x)
+
+A lógica para um zoom de 2x pode ser visualizada da seguinte forma: um único pixel `P(x, y)` da imagem original é usado para preencher quatro posições na imagem ampliada.
+
+---
+
+![Lógica de replicação de pixels](src/replicacao.png)  
+*Figura 1 — Diagrama da Lógica de replicação de pixels.*
+
+---
+
+#### Detalhamento da Máquina de Estados (FSM)
+
+A FSM implementada em Verilog segue um fluxo lógico para garantir que a imagem seja processada corretamente, desde a inicialização até a conclusão.
+
+1.  **Estado de Inicialização (`S_IDLE`)**
+    * **Função:** Prepara o sistema para o processamento. Zera os contadores de pixels (`pixel_counter`), o endereço da RAM (`ram_counter`) e a variável de controle `zoom_phase`.
+    * **Fluxo:** O estado verifica qual o modo de zoom selecionado (`zoom_enable`).
+        * Se for **1x** (`3'b000`), a FSM transita para `S_CLEAR_BORDERS`, pois apenas as bordas da tela precisam ser limpas.
+        * Se for **2x** ou **4x**, a imagem de saída será maior que a original, ocupando uma área diferente. Para evitar "lixo" visual de processamentos anteriores, a FSM transita para `S_CLEAR_ALL` para limpar toda a tela.
+
+2.  **Estados de Limpeza de Tela (`S_CLEAR_ALL` e `S_CLEAR_BORDERS`)**
+    * **`S_CLEAR_ALL` (Modos 2x e 4x):** Este estado varre toda a RAM de vídeo, escrevendo o valor `8'h00` (preto) em cada posição. Isso garante que a tela esteja completamente preta antes de desenhar a imagem ampliada. Ao final, avança para `S_SET_ADDR`.
+    * **`S_CLEAR_BORDERS` (Modo 1x):** Em vez de limpar toda a tela, este estado percorre a RAM e escreve preto apenas nas áreas que não serão ocupadas pela imagem original. A imagem é centralizada usando offsets (`NO_ZOOM_OFFSET_X`, `NO_ZOOM_OFFSET_Y`), e qualquer pixel fora dessa janela central é apagado. Isso é uma otimização para evitar a reescrita desnecessária da área da imagem. Ao final, avança para `S_SET_ADDR`.
+
+3.  **Ciclo de Leitura e Escrita**
+    * **`S_SET_ADDR`:** Define o endereço do pixel da imagem original que será lido da ROM, usando o `pixel_counter`.
+    * **`S_READ_ROM`:** Lê o dado de 8 bits (nível de cinza) do endereço fornecido e o armazena em um registrador temporário (`rom_data_reg`).
+    * **`S_WRITE_RAM`:** Este é o coração do algoritmo de replicação. A lógica de escrita na RAM de vídeo depende do modo de zoom:
+        * **Modo 1x:** O pixel lido é escrito em uma única posição na RAM, calculada com base nas suas coordenadas originais mais um offset de centralização. A FSM então avança para ler o próximo pixel (`pixel_counter` é incrementado).
+        * **Modo 2x (`zoom_enable == 3'b001`):** Para cada pixel lido da ROM, a FSM permanece no estado `S_WRITE_RAM` por **4 ciclos de clock**. A cada ciclo, a variável `zoom_phase` (de 0 a 3) é usada para calcular o endereço de um dos quatro pixels do bloco 2x2 de destino. O *mesmo valor* do pixel original (`rom_data_reg`) é escrito em todas as quatro posições. Após a quarta escrita, `pixel_counter` é incrementado e o ciclo recomeça para o próximo pixel da ROM.
+        * **Modo 4x (`zoom_enable == 3'b010`):** A lógica é similar ao modo 2x, mas expandida. A FSM permanece no estado `S_WRITE_RAM` por **16 ciclos de clock**. A variável `zoom_phase` (de 0 a 15) ajuda a calcular o endereço de cada um dos 16 pixels do bloco 4x4 de destino. Após as 16 escritas do mesmo pixel, o sistema avança para o próximo pixel da imagem original.
+
+4.  **Estado de Conclusão (`S_DONE`)**
+    * **Função:** Após todos os pixels da ROM terem sido processados (`pixel_counter` atingiu o valor máximo), a FSM entra neste estado.
+    * **Ação:** Sinaliza que o processo de redimensionamento foi concluído ativando a flag `done`. O sistema permanece neste estado até que um novo comando de redimensionamento seja iniciado.
+
+### Diagrama de Transição de Estados
+
+---
+
+![Diagrama de estados do algoritmo de replicação](src/replicacao.png)  
+*Figura x — Diagrama de estados do algoritmo de replicação de pixels.*
+
+---
+
+
 ### MÉDIA DE BLOCOS
 
 O algoritmo de **Média de Blocos** é utilizado no modo **zoom out**, reduzindo a resolução da imagem por meio da substituição de grupos de pixels pela média aritmética de suas intensidades.  
