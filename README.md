@@ -221,3 +221,87 @@ Foram realizados testes nos três modos principais, exibidos na saída VGA:
 - **Zoom Out 0.25x (4×4)**  
 
 ![Funcionamento do algoritmo média de blocos — saída VGA.](src/media.gif)
+
+
+
+
+# Vizinho Mais Próximo (Nearest Neighbor)
+
+O algoritmo de redimensionamento de imagens Vizinho Mais Próximo realiza operações de **zoom in** (aumentar) e **zoom out** (diminuir) em tempo real, lendo uma imagem da memória ROM e escrevendo o resultado em um framebuffer (RAM) para mostrar em um monitor VGA.
+
+## Visão Geral
+
+O algoritmo Vizinho Mais Próximo é uma técnica simples e rápida para redimensionar imagens, ideal para hardware como FPGAs porque não precisa de cálculos complicados. A ideia básica é: para cada ponto na nova imagem, encontrar o pixel mais próximo na imagem original e copiar sua cor.
+
+O projeto usa **Máquinas de Estados Finitos (FSM)** para controlar o fluxo de dados entre a ROM (imagem original) e a RAM (imagem de saída).
+
+## Características Principais
+
+- **Rápido e Simples**: Não faz cálculos complexos
+- **Controle por FSM**: Gerencia leitura, processamento e escrita dos pixels
+- **Zoom In e Zoom Out**: Suporta aumentar (2x, 4x) e diminuir (0.5x, 0.25x)
+- **Centralizado**: Imagem sempre no centro da tela VGA (640x480)
+
+## Como Funciona
+
+O algoritmo mapeia cada pixel da imagem final `(x_out, y_out)` para sua posição correspondente `(x_in, y_in)` na imagem original:
+
+### Versão 1 – Zoom In
+
+Esta versão foca exclusivamente na ampliação da imagem. Sua lógica é: ela lê um pixel da imagem original (ROM) e o replica múltiplas vezes em um bloco na imagem de destino (RAM).
+
+#### Diagrama da FSM (Versão 1)
+
+O fluxo de controle desta versão é representado pelo seguinte diagrama:
+
+*Figura 1 — Diagrama da FSM para ampliação (Zoom In) por replicação de pixels.*
+
+#### Fluxo da FSM (Versão 1)
+
+1. **S_IDLE**: Estado inicial que reseta contadores e flags.
+2. **S_CLEAR_ALL / S_CLEAR_BORDERS**: Limpa o framebuffer (toda a tela para zoom, ou apenas as bordas para o modo 1x).
+3. **S_SET_ADDR**: Aponta para o endereço do próximo pixel a ser lido na ROM.
+4. **S_READ_ROM**: Lê o dado do pixel e o armazena em um registrador.
+5. **S_WRITE_RAM**: Escreve o pixel lido na RAM. Este é o estado principal do zoom, onde a FSM pode permanecer por vários ciclos (controlado por `zoom_phase`) para escrever o mesmo pixel em diferentes posições do bloco de destino.
+6. **S_DONE**: Sinaliza o fim do processamento.
+
+#### Modos de Operação:
+
+- **Normal (1x)**: Cópia 1:1 da ROM para a RAM.
+- **Zoom 2x**: Cada pixel da ROM é replicado em um bloco 2x2 na RAM.
+- **Zoom 4x**: Cada pixel da ROM é replicado em um bloco 4x4 na RAM.
+
+# Versão 2: Zoom Out
+
+Diferente da versão anterior, aqui a máquina de estados percorre cada pixel do framebuffer de destino na RAM e "puxa" o pixel correspondente da memória ROM usando um cálculo de mapeamento reverso.
+
+## Diagrama da FSM (Versão 2)
+
+*Figura 2 — Diagrama da máquina de estados para modo Normal e Zoom Out.*
+
+## Fluxo de Operação da FSM (Versão 2)
+
+1. **VZ05_IDLE**: Estado inicial que prepara o contador da RAM para começar a leitura do framebuffer.
+
+2. **VZ05_CLEAR_FRAME**: Realiza a limpeza completa do framebuffer, preenchendo toda a área com a cor preta para remover qualquer resíduo de imagens anteriores.
+
+3. **VZ05_PROCESS_PIXEL**: Etapa principal do algoritmo. Examina cada pixel da RAM sequencialmente:
+   - Confirma se o pixel atual está dentro da região ativa da imagem
+   - Se estiver fora dos limites: simplesmente avança para o próximo pixel
+   - Se estiver dentro: calcula as coordenadas correspondentes na imagem original e busca o pixel
+
+4. **VZ05_SET_ROM_ADDR**: Transforma as coordenadas bidimensionais (`src_x`, `src_y`) em um endereço unidimensional para acessar a ROM.
+
+5. **VZ05_READ_ROM**: Realiza a leitura do valor do pixel no endereço calculado da memória ROM.
+
+6. **VZ05_WRITE_RAM**: Grava o pixel obtido da ROM na posição atual do framebuffer de destino.
+
+7. **VZ05_DONE**: Estado final que indica a conclusão do processamento depois que todos os pixels foram analisados.
+
+## Modos de Funcionamento Suportados
+
+- **Modo Normal (1x)**: Realiza uma cópia direta pixel a pixel da imagem original, aplicando apenas os ajustes de posicionamento para centralização na tela.
+
+- **Zoom Out 0.5x e 0.25x**: A redução de tamanho acontece de forma natural através do processo de subamostragem. Durante o cálculo das coordenadas, múltiplos pixels da imagem original são ignorados, resultando em uma versão menor da imagem.
+
+> **Observação Importante**: As operações de Zoom In (aumento) são gerenciadas apenas pela Versão 1 deste projeto, que utiliza uma técnica diferente mais adequada para esse tipo de operação.
