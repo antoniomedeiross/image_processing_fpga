@@ -520,6 +520,28 @@ Diferente da versão anterior, aqui a máquina de estados percorre cada pixel do
 
 
 ## Resultados Gerais da Implementação do Projeto
-  - falar do erro da  borda
-  - falar do erro ao mudar algoritmos rapido
-  - falar dos resto
+
+A implementação do coprocessador gráfico para redimensionamento de imagens na FPGA DE1-SoC mostrou-se **funcional e eficiente**, permitindo aplicar zoom in e zoom out em tempo real utilizando diferentes algoritmos de interpolação. O sistema respondeu corretamente aos comandos via botões e chaves da placa, exibindo as imagens processadas na saída VGA 640x480.
+
+### Observações e Limitações Identificadas
+
+1. **Erro nas Bordas da Imagem**  
+   - Foi observado um pequeno **desalinhamento ou artefato** nos cantos da imagem processada.  
+   - Esse erro de temporização é possivelmente causado pelo **clock do sistema (25 MHz)** que controla o sistema, enquanto a **memória RAM utilizada para o framebuffer pede que o clock seja de 75 MHz**.  
+   - A diferença de frequência entre o pedido pela memória e o fornecida pode gerar um ciclo de atraso, fazendo com que alguns pixels nos cantos iniciais/finais da imagem sejam escritos de forma incorreta ou fora de sequência.
+
+2. **Problema ao Trocar Algoritmos Rapidamente**  
+   - Se o usuário altera o **tipo de algoritmo de redimensionamento** enquanto o processamento da imagem anterior ainda está em andamento, a tela pode apresentar **um bug visual**, como pixels incorretos ou blocos de imagem repetidos.  
+   - Isso ocorre porque a FSM do módulo `alu_algoritmos` não reinicializa automaticamente o framebuffer nem limpa a RAM antes de iniciar o novo algoritmo, resultando em **resíduos da operação anterior**.
+
+### Conclusão
+
+Apesar das limitações mencionadas, o projeto cumpre seu objetivo principal: processar imagens em escala de cinza e aplicar zoom digital diretamente em hardware. A arquitetura baseada em FSMs mostrou-se **robusta**, garantindo processamento determinístico e tempo real.  
+
+Para versões futuras, é recomendável:  
+- Implementar **sinais de sincronização entre os clocks da ALU e da RAM** para reduzir artefatos nos cantos da imagem.  
+- Inserir um **estado de limpeza automática do framebuffer** sempre que houver mudança de algoritmo ou de fator de zoom, evitando bugs visuais.  
+- Utilizar um clock adequado ao módulo de memória. 
+
+No geral, o projeto valida a viabilidade de um **coprocessador gráfico em FPGA** para operações de zoom, apresentando alta performance e baixo consumo de recursos, mesmo considerando as pequenas limitações temporais identificadas.
+
