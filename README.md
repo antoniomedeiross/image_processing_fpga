@@ -43,6 +43,7 @@ Este repositório reúne os códigos-fonte, scripts e documentação completa do
   * [Média de Blocos](#média-de-blocos)
   * [Vizinho Mais Próximo](#vizinho-mais-próximo)
 * [Testes](#testes)
+* [Resultados](#Resultados-Gerais-da-Implementação-do-Projeto)
 * [Referências](#referências)
 
 ## Arquitetura Geral do Sistema
@@ -545,3 +546,4 @@ Para versões futuras, é recomendável:
 
 No geral, o projeto valida a viabilidade de um **coprocessador gráfico em FPGA** para operações de zoom, apresentando alta performance e baixo consumo de recursos, mesmo considerando as pequenas limitações temporais identificadas.
 
+## Referências
